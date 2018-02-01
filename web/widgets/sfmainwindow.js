@@ -138,22 +138,22 @@ function SFMainWindow(O) {
 		var obj=result.resultObject();
 		var prefix=dataset_id+'_'+algorithm_name;
 
-		var firings=obj.firings||{};
+		var firings=obj['firings.mda']||{};
 		var fname=prefix+'_firings.mda';
 		var elmt=create_downloadable_file_element(firings,'firings.mda',fname);
 		ret.find('#c3').append(elmt);
 
 		if (obj.summary_data) {
 			for (var key in obj.summary_data) {
-				var fname=prefix+'_'+key+'.mda';
-				var elmt=create_downloadable_file_element(obj.summary_data[key],key+'.mda',fname);
+				var fname=prefix+'_'+key;
+				var elmt=create_downloadable_file_element(obj.summary_data[key],key,fname);
 				ret.find('#c4').append(elmt);
 			}
 		}
 		if (obj.validation_data) {
 			for (var key in obj.validation_data) {
-				var fname=prefix+'_'+key+'.mda';
-				var elmt=create_downloadable_file_element(obj.validation_data[key],key+'.mda',fname);
+				var fname=prefix+'_'+key;
+				var elmt=create_downloadable_file_element(obj.validation_data[key],key,fname);
 				ret.find('#c5').append(elmt);
 			}
 		}
@@ -162,7 +162,7 @@ function SFMainWindow(O) {
 	}
 
 	function create_downloadable_file_element(file,label,fname) {
-		var elmt=$('<span><a href=#></a></span>');
+		var elmt=$('<span><a href=#></a>&nbsp;&nbsp;</span>');
 		elmt.find('a').html(label);
 		elmt.find('a').click(do_download);
 		return elmt;
