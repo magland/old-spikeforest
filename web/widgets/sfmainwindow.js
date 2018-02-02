@@ -254,7 +254,7 @@ function create_hist_elmt(values,opts,callback) {
 }
 
 function create_bar_chart(xdata,ydata,opts,callback) {
-	$.getScript('http://d3js.org/d3.v4.min.js',function() {
+	$.getScript('https://d3js.org/d3.v4.min.js',function() {
 		var data=[];
 		for (var i in xdata) {
 			var tooltip=(opts.tooltips||[])[i]||'';
