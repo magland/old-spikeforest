@@ -1,3 +1,5 @@
+
+
 function SFMainWindow(O) {
 	O=O||this;
 	JSQWidget(O);
@@ -130,7 +132,7 @@ function SFMainWindow(O) {
 		ret.append('<td class=td3 id=c4></td>');
 		ret.append('<td class=td3 id=c5></td>');
 		ret.find('#c1').css({"min-width":'60px'});
-		ret.find('#c2').css({"min-width":'60px'});
+		ret.find('#c2').css({"min-width":'200px'});
 		ret.find('#c3').css({"min-width":'100px'});
 		ret.find('#c4').css({"min-width":'300px'});
 		ret.find('#c5').css({"min-width":'300px'});
@@ -158,27 +160,196 @@ function SFMainWindow(O) {
 			}
 		}
 
+		opts={
+			width:200,
+			height:200
+		};
+		var accuracies=obj.validation_data.validation_stats.accuracies;
+		console.log('accuracies: '+JSON.stringify(accuracies));
+		create_hist_elmt(accuracies,opts,function(elmt) {
+			ret.find('#c2').append(elmt);
+		});
+
 		return ret;
 	}
 
 	function create_downloadable_file_element(file,label,fname) {
 		var elmt=$('<span><a href=#></a>&nbsp;&nbsp;</span>');
+		if (!file.prv) label+='.json';
 		elmt.find('a').html(label);
 		elmt.find('a').click(do_download);
 		return elmt;
 
 		function do_download() {
 			var kbucket_url=m_sf_manager.kBucketUrl();
-			if (!file.prv) {
-				alert('Not a prv object.');
-				return;
+			if (file.prv) {
+				var url=kbucket_url+'/download/'+file.prv.original_checksum+'/'+fname;
+				download(url);
 			}
-			var url=kbucket_url+'/download/'+file.prv.original_checksum+'/'+fname;
-			console.log(url);
-			download(url);
+			else {
+				download(JSON.stringify(file,null,4),label);
+			}			
 		}
 	}
 
 	update_layout();
 }
 
+function round(x) {
+	return Math.round(x*1e4)/1e4;
+}
+
+function create_hist_elmt(values,opts,callback) {
+	var lefts=[];
+	var rights=[];
+	var centers=[];
+	for (var left=0; round(left)<100; left+=10) {
+		lefts.push(round(left));
+		rights.push(round(left+10));
+		centers.push(round(left+5));
+	}
+	var counts=[];
+	var tooltips=[];
+	for (var i in lefts) {
+		counts.push(0);
+		tooltips.push('');
+	}
+	for (var i in values) {
+		var val=values[i];
+		var ii=Math.floor(val/0.1);
+		if ((0<=ii)&&(ii<lefts.length)) {
+			counts[ii]++;
+		}
+		tooltips[ii]=`Bin: [${lefts[ii]},${rights[ii]}]  Count: ${counts[ii]}`;
+	}
+	var opts={
+		bar_width:9.5,
+		width:opts.width,
+		height:opts.height,
+		tooltips:tooltips,
+		xmin:0,
+		xmax:100,
+		xticks:[0,20,40,60,80,100],
+		xlabel:'Accuracy (%)',
+		ylabel:'Num. units'
+	};
+	create_bar_chart(centers,counts,opts,callback);
+}
+
+function create_bar_chart(xdata,ydata,opts,callback) {
+	$.getScript('http://d3js.org/d3.v4.min.js',function() {
+		var data=[];
+		for (var i in xdata) {
+			var tooltip=(opts.tooltips||[])[i]||'';
+			data.push({x:xdata[i],y:ydata[i],tooltip:tooltip});
+		}
+
+		var elmt=$('<svg width='+opts.width+' height='+opts.height+'/>');
+		$('body').append(elmt);
+
+		var svg = d3.select(elmt[0]);
+		var g = svg.append("g");
+		
+		var xmin=null;
+		var xmax=null;
+		for (var i in xdata) {
+			if ((xmin===null)||(xdata[i]<xmin)) xmin=xdata[i];
+			if ((xmax===null)||(xdata[i]>xmax)) xmax=xdata[i];
+		}
+		xmin-=opts.bar_width/2;
+		xmax+=opts.bar_width/2;
+
+		if ('xmin' in opts) xmin=opts.xmin;
+		if ('xmax' in opts) xmax=opts.xmax;
+
+		var ymax=null;
+		for (var i in ydata) {
+			if ((ymax===null)||(ydata[i]>ymax)) ymax=ydata[i];
+		}
+
+		var marg_left=35;
+		var marg_right=20;
+		var marg_bottom=40;
+		var marg_top=20;
+		var W0=opts.width-marg_left-marg_right;
+		var H0=opts.height-marg_bottom-marg_top;
+
+		/*
+		svg.append('g')
+			.append('line')
+			.attr('x1',marg_left)
+			.attr('y1',marg+H0)
+			.attr('x2',marg+W0)
+			.attr('y2',marg+H0)
+			.attr('stroke','gray')
+			.attr('stroke-width',1);
+			*/
+
+        var xScale = d3.scaleLinear()
+	        .domain([xmin,xmax])
+			.range([marg_left, marg_left+W0]);
+		var xAxis = d3.axisBottom()
+			.tickSizeOuter(0)
+            .scale(xScale);
+        if (opts.xticks)
+            xAxis.tickValues(opts.xticks);
+        svg.append('g')
+        	.attr("class", "axis")
+        	.attr("transform", "translate("+0+","+(marg_top+H0)+")")
+        	.call(xAxis);
+
+        var yScale = d3.scaleLinear()
+	        .domain([0,ymax])
+			.range([marg_top+H0, marg_top]);
+		var yAxis = d3.axisLeft()
+			.tickSizeOuter(0)
+            .scale(yScale);
+        if (opts.yticks)
+            yAxis.tickValues(opts.yticks);
+        svg.append('g')
+        	.attr("class", "axis")
+        	.attr("transform", "translate("+marg_left+",0)")
+        	.call(yAxis);
+
+        // text label for the x axis
+  		svg.append("text")             
+	      .attr("transform",
+	            "translate(" + (marg_left+W0/2) + " ," + 
+	                           (marg_top+H0 + 30) + ")")
+	      .attr("class", "axis_label")
+	      .style("text-anchor", "middle")
+	      .text(opts.xlabel||'');
+
+	    // text label for the y axis
+  		svg.append("text")    
+  		  .attr("transform", "rotate(-90)")
+  		  .attr("x",-marg_top-H0/2).attr("y",marg_left-20)
+	      .attr("class", "axis_label")
+	      .style("text-anchor", "middle")
+	      .text(opts.ylabel||'');
+
+		var bar=g.selectAll(".bar")
+	    .data(data)
+	    .enter().append("g")
+
+	    bar.append('rect')
+	      .attr("class", "bar")
+	      .attr("x", function(d) { return marg_left+(d.x-opts.bar_width/2-xmin)/(xmax-xmin)*W0; })
+	      .attr("y", function(d) { return marg_top+(H0 - d.y/ymax*H0); })
+	      .attr("width", opts.bar_width/(xmax-xmin)*W0)
+	      .attr("height", function(d) { return d.y/ymax*H0; })
+	      .append('title').html(function(d) {return d.tooltip;});
+
+	    if (false) {
+		    bar.append('text')
+		    	.attr("x", function(d) { return marg_left+(d.x-xmin)/(xmax-xmin)*W0; })
+		        .attr("y", function(d) { return marg_top+(H0 - d.y/ymax*H0 -3); })
+		    	.text(function(d) {if (d.y==0) return ''; return d.y;} )
+		    	.attr('text-anchor','middle');
+		}
+
+
+
+		callback(elmt);
+	});
+}

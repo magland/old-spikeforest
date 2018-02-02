@@ -36,7 +36,6 @@ function SFManager(O) {
   }
   function algorithm(i) {
     var obj=m_config.algorithms[i];
-    console.log(i,obj,algorithmCount());
     var X=new SFAlgorithm();
     X.setObject(obj);
     return X;

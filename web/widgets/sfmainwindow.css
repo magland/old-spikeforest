@@ -54,3 +54,32 @@
 .SFMainWindow td:hover {
 	background-color: rgb(220,220,240);
 }
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+	stroke-width:0px;
+	font-size:8px;
+}
+
+.axis path {
+	stroke:rgb(22,20,18);
+	stroke-width:1px;
+	fill:none;
+}
+
+.axis line {
+	stroke:rgb(22,20,18);
+	stroke-width:1px;
+	fill:none;
+}
+
+.axis_label {
+	font-size: 12px;
+}
