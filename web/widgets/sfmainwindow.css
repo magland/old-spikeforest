@@ -2,7 +2,7 @@
 	background-color: rgb(250,250,250);
 }
 
-.SFMainWindow > table > tbody > tr > th {
+.SFMainWindow > table.table1 > tbody > tr > th {
 	font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
 	color: #5396CA;
 	border-right: 1px solid #C1DAD7;
@@ -17,7 +17,7 @@
 	font-size: 16px;
 }
 
-.SFMainWindow table > tbody > tr > td {
+.SFMainWindow table.table1 > tbody > tr > td {
 	border: 1px solid gray;
 	padding-left: 8px;
 	padding-right: 8px;
@@ -28,31 +28,40 @@
 	font-size: 16px;
 }
 
-.SFMainWindow table > tbody > tr > td.td1 {
+.SFMainWindow table.table1 > tbody > tr > td.td1 {
 	background-color: white;
 }
 
-.SFMainWindow table > tbody > tr > td.td2 {
+.SFMainWindow table.table1 > tbody > tr > td.td2 {
 	background-color: rgb(240,240,240);
 }
 
-.SFMainWindow table > tbody > tr > td.td3 {
+.SFMainWindow table.table1 > tbody > tr > td.td3 {
 	background-color: rgb(240,255,240);
 }
 
-.SFMainWindow th > td {
+.SFMainWindow table.table1 th > td {
 	font-weight: bold;
 }
 
-.SFMainWindow td {
+.SFMainWindow table.table1 td {
 	text-align: center;
 }
-.SFMainWindow td.td3 {
+.SFMainWindow table.table1 td.td3 {
 	text-align: left;
 }
 
-.SFMainWindow td:hover {
+/* why does this not work? Is it because we have complex elements inside the table? */
+.SFMainWindow .table1 > tbody > tr > td:hover {
 	background-color: rgb(220,220,240);
+}
+
+.SFMainWindow table.table2 > tbody > tr > td {
+	max-width: 300px;
+	overflow: hidden;
+	word-wrap: break-word;
+	font-size: 12px;
+	text-align: left;
 }
 
 .bar {

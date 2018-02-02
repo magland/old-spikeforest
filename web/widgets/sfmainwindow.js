@@ -58,7 +58,7 @@ function SFMainWindow(O) {
 			}
 		}
 		else if (display_mode.find('#dm3').is(':checked')) {
-			var table=$('<table />');
+			var table=$('<table class=table1 />');
 			content.append(table);
 			var tr_header=$('<tr></tr>');
 			table.append(tr_header);
@@ -78,19 +78,28 @@ function SFMainWindow(O) {
 					tr.append('<td><a href=#>'+pct+'%</a></td>');
 				}
 			}
-			var result_table=$('<table></table>');
-			result_table.append('<tr><th>Result</th><th>Num. units</th><th>Accuracy</th><th>Sorting output</th><th>Summary</th><th class=td3>Validation</th></tr>');
+			var result_table=$('<table class=table1></table>');
+			result_table.append(make_result_table_header_row());
 			content.append('<hr />');
 			content.append(result_table);
 		}
+	}
+
+	function make_result_table_header_row() {
+		var tr=$('<tr />');
+		tr.append('<th>Result</th>');
+		tr.append('<th>Num. units</th>');
+		tr.append('<th>Accuracy</th>');
+		tr.append('<th>Files</th>');
+		return tr;
 	}
 
 	function create_dataset_element(DS) {
 		var dataset_id=DS.id();
 		var ret=$('<span></span>');
 		ret.append('<h2>Dataset: '+dataset_id+'</h2>');
-		var table=$('<table />');
-		table.append('<tr><th>Result</th><th>Num. units</th><th>Accuracy</th><th>Sorting output</th><th>Summary</th><th class=td3>Validation</th></tr>');
+		var table=$('<table class=table1 />');
+		table.append(make_result_table_header_row());
 		ret.append(table);
 		for (var i=0; i<m_sf_manager.algorithmCount(); i++) {
 			var alg=m_sf_manager.algorithm(i);
@@ -107,7 +116,7 @@ function SFMainWindow(O) {
 		var algorithm_name=ALG.name();
 		var ret=$('<span></span>');
 		ret.append('<h2>Algorithm: '+algorithm_name+'</h2>');
-		var table=$('<table />');
+		var table=$('<table class=table1 />');
 		table.append('<tr><th>Result</th><th>Num. units</th><th>Accuracy</th><th></th><th class=td3>Output files</th></tr>')
 		ret.append(table);
 		for (var i=0; i<m_sf_manager.datasetCount(); i++) {
@@ -128,35 +137,43 @@ function SFMainWindow(O) {
 		ret.append('<td class=td1><h4>'+dataset_id+' / '+algorithm_name+'</h4></td>');
 		ret.append('<td class=td2 id=c1></td>');
 		ret.append('<td class=td2 id=c2></td>');
-		ret.append('<td class=td2 id=c3></td>');
-		ret.append('<td class=td3 id=c4></td>');
-		ret.append('<td class=td3 id=c5></td>');
+		ret.append('<td class=td3 id=c3></td>');
 		ret.find('#c1').css({"min-width":'60px'});
 		ret.find('#c2').css({"min-width":'200px'});
-		ret.find('#c3').css({"min-width":'100px'});
-		ret.find('#c4').css({"min-width":'300px'});
-		ret.find('#c5').css({"min-width":'300px'});
-
+		ret.find('#c3').css({"min-width":'150px'});
+		
 		var obj=result.resultObject();
 		var prefix=dataset_id+'_'+algorithm_name;
 
+		var c3_table=$('<table class=table2></table>');
+		ret.find('#c3').append(c3_table);
 		var firings=obj['firings.mda']||{};
 		var fname=prefix+'_firings.mda';
 		var elmt=create_downloadable_file_element(firings,'firings.mda',fname);
-		ret.find('#c3').append(elmt);
+
+		var tr=$('<tr><td></td></tr>'); c3_table.append(tr);
+		tr.find('td').append('Sorting output:');
+		var tr=$('<tr><td></td></tr>'); c3_table.append(tr);
+		tr.find('td').append(elmt);
 
 		if (obj.summary_data) {
+			var tr=$('<tr><td></td></tr>'); c3_table.append(tr);
+			tr.find('td').append('Summary data:');
 			for (var key in obj.summary_data) {
 				var fname=prefix+'_'+key;
 				var elmt=create_downloadable_file_element(obj.summary_data[key],key,fname);
-				ret.find('#c4').append(elmt);
+				var tr=$('<tr><td></td></tr>'); c3_table.append(tr);
+				tr.find('td').append(elmt);
 			}
 		}
 		if (obj.validation_data) {
+			var tr=$('<tr><td></td></tr>'); c3_table.append(tr);
+			tr.find('td').append('Validation data: ');
 			for (var key in obj.validation_data) {
 				var fname=prefix+'_'+key;
 				var elmt=create_downloadable_file_element(obj.validation_data[key],key,fname);
-				ret.find('#c5').append(elmt);
+				var tr=$('<tr><td></td></tr>'); c3_table.append(tr);
+				tr.find('td').append(elmt);
 			}
 		}
 
