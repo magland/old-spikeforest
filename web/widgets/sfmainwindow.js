@@ -143,6 +143,7 @@ function SFMainWindow(O) {
 		ret.find('#c3').css({"min-width":'150px'});
 		
 		var obj=result.resultObject();
+		console.log(obj);
 		var prefix=dataset_id+'_'+algorithm_name;
 
 		var c3_table=$('<table class=table2></table>');
@@ -181,18 +182,35 @@ function SFMainWindow(O) {
 			width:200,
 			height:200
 		};
-		var accuracies=obj.validation_data.validation_stats.accuracies;
-		console.log('accuracies: '+JSON.stringify(accuracies));
-		create_hist_elmt(accuracies,opts,function(elmt) {
-			ret.find('#c2').append(elmt);
-		});
+		ret.find('#c2').html('loading');
+		get_json_from_url(obj.validation_data['validation_stats.json'].url,function(err,validation_stats) {
+			if (err) {
+				ret.find('#c2').html('Error loading: '+err);
+				return;
+			}
+			ret.find('#c2').html('');
+			var accuracies=validation_stats.accuracies;
+			create_hist_elmt(accuracies,opts,function(elmt) {
+				ret.find('#c2').append(elmt);
+			});
+		})
 
 		return ret;
 	}
 
+	function get_json_from_url(url,callback) {
+		jsu_http_get_json(url,{},function(tmp) {
+			if (!tmp.success) {
+				callback(tmp.error);
+				return;
+			}
+			callback(null,tmp.object);
+		});
+	}
+
 	function create_downloadable_file_element(file,label,fname) {
 		var elmt=$('<span><a href=#></a>&nbsp;&nbsp;</span>');
-		if (!file.prv) label+='.json';
+		if ((!file.prv)&&(!file.url)) label+='.json';
 		elmt.find('a').html(label);
 		elmt.find('a').click(do_download);
 		return elmt;
@@ -200,8 +218,10 @@ function SFMainWindow(O) {
 		function do_download() {
 			var kbucket_url=m_sf_manager.kBucketUrl();
 			if (file.prv) {
-				var url=kbucket_url+'/download/'+file.prv.original_checksum+'/'+fname;
-				download(url);
+				file.url=kbucket_url+'/download/'+file.prv.original_checksum+'/'+fname;
+			}
+			if (file.url) {
+				download(file.url);
 			}
 			else {
 				download(JSON.stringify(file,null,4),label);
