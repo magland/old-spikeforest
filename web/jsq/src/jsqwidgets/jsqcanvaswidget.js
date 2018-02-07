@@ -135,8 +135,15 @@ function JSQCanvasPainter(canvas) {
 		ctx.ellipse(rect[0]+rect[2]/2,rect[1]+rect[3]/2,rect[2]/2,rect[3]/2,0,0,2*Math.PI);
 		ctx.stroke();
 	}
-	this.fillEllipse=function(rect) {
-		ctx.fillStyle=to_color(m_brush.color);
+	this.fillEllipse=function(rect,brush) {
+		if (brush) {
+			if (typeof brush === 'string') brush={color:brush};
+			if (!('color' in brush)) brush={color:brush};
+			ctx.fillStyle=to_color(brush.color);
+		}
+		else {
+			ctx.fillStyle=to_color(m_brush.color);
+		}
 		ctx.beginPath();
 		ctx.ellipse(rect[0]+rect[2]/2,rect[1]+rect[3]/2,rect[2]/2,rect[3]/2,0,0,2*Math.PI);
 		ctx.fill();

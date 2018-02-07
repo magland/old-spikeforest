@@ -1,5 +1,3 @@
-
-
 function SFMainWindow(O) {
 	O=O||this;
 	JSQWidget(O);
@@ -16,50 +14,65 @@ function SFMainWindow(O) {
 		var H=O.height();
 	}
 
+	var dataset_content=$('<span></span>');
+	O.div().append(dataset_content);
+
+	O.div().append('<hr />');
+	O.div().append('<h1>Results</h1>');
+
 	var display_mode=$('<span>Display mode: </span>');
 	O.div().append(display_mode);
 	display_mode.append('<span><input id=dm1 name=display_mode type=radio></input> By dataset &nbsp;&nbsp;&nbsp;</span>')
 	display_mode.append('<span><input id=dm2 name=display_mode type=radio></input> By algorithm 2 &nbsp;&nbsp;&nbsp;</span>')
 	display_mode.append('<span><input id=dm3 name=display_mode type=radio></input> Matrix &nbsp;&nbsp;&nbsp;</span>')
-
 	display_mode.find('#dm1').attr('checked','checked');
 	display_mode.find('input').change(function() {
 		refresh();
 	});
+	O.div().append('<hr />');
 
-	var content=$('<span></span>');
-	O.div().append(content);
+	var result_content=$('<span></span>');
+	O.div().append(result_content);
 
 	function refresh() {
 		if (!m_sf_manager) {
 			console.error('Error in refresh: no manager has been set.');
 			return;
 		}		
-		content.empty();
 
-		
+		dataset_content.empty();
+		var dataset_table=$('<table class=table1 />');
+		dataset_content.append(dataset_table);
+		dataset_table.append('<tr><th>Dataset</th><th>Geometry</th><th>Study</th><th>Files</th></tr>');
+		for (var i=0; i<m_sf_manager.datasetCount(); i++) {
+			var ds=m_sf_manager.dataset(i);
+			var tr=create_dataset_row(ds);
+			dataset_table.append(tr);
+		}
+
+		result_content.empty();
 
 		if (display_mode.find('#dm1').is(':checked')) {
 			for (var i=0; i<m_sf_manager.datasetCount(); i++) {
 				if (i>0) {
-					content.append('<hr/>'); //divider
+					result_content.append('<hr/>'); //divider
 				}
-				var X=create_dataset_element(m_sf_manager.dataset(i));
-				content.append(X);
+				var X=create_dataset_result_element(m_sf_manager.dataset(i));
+				result_content.append(X);
 			}
 		}
 		else if (display_mode.find('#dm2').is(':checked')) {
 			for (var i=0; i<m_sf_manager.algorithmCount(); i++) {
 				if (i>0) {
-					content.append('<hr/>'); //divider
+					result_content.append('<hr/>'); //divider
 				}
-				var X=create_algorithm_element(m_sf_manager.algorithm(i));
-				content.append(X);
+				var X=create_algorithm_result_element(m_sf_manager.algorithm(i));
+				result_content.append(X);
 			}
 		}
 		else if (display_mode.find('#dm3').is(':checked')) {
 			var table=$('<table class=table1 />');
-			content.append(table);
+			result_content.append(table);
 			var tr_header=$('<tr></tr>');
 			table.append(tr_header);
 			tr_header.append('<th></th>');
@@ -80,9 +93,52 @@ function SFMainWindow(O) {
 			}
 			var result_table=$('<table class=table1></table>');
 			result_table.append(make_result_table_header_row());
-			content.append('<hr />');
-			content.append(result_table);
+			result_content.append('<hr />');
+			result_content.append(result_table);
 		}
+	}
+
+	function create_dataset_row(DS) {
+		var dataset_id=DS.id();
+		var ret=$('<tr />');
+		ret.append('<td>'+dataset_id+'</td>');
+		var geom_td=$('<td></td>');
+		ret.append(geom_td);
+		var study_td=$('<td></td>');
+		ret.append(study_td);
+		var files_td=$('<td></td>');
+		ret.append(files_td);
+
+		var geom=DS.file('geom.csv');
+		if (geom) {
+			geom_td.html('Loading geometry...');
+			get_text_from_url(geom.url,function(err,txt) {
+				if (err) {
+					geom_td.html('Error loading geometry file: '+err);
+					return;
+				}
+				geom_td.html('');
+				var W=new GeomWidget();
+				W.setGeomText(txt);
+				geom_td.append(W.div());
+			});
+			var aa=create_downloadable_file_element(geom,'geom.csv','geom.csv');
+			files_td.append(aa);
+		}
+
+		var ds_obj=DS.object();
+		if (ds_obj.study) {
+			var title0=ds_obj.study.title||'';
+			var owner0=ds_obj.study.owner||'';
+			var txt=title0+' ('+owner0+')';
+			var elmt=$('<span title="'+txt+'">'+title0+' <a href=#>&#x2197;</a></span>');
+			elmt.find('a').click(function() {
+				window.open('https://mlstudy.herokuapp.com/?owner='+owner0+'&title='+title0,'_blank');
+			});
+			study_td.append(elmt);
+		}
+		
+		return ret;
 	}
 
 	function make_result_table_header_row() {
@@ -94,7 +150,7 @@ function SFMainWindow(O) {
 		return tr;
 	}
 
-	function create_dataset_element(DS) {
+	function create_dataset_result_element(DS) {
 		var dataset_id=DS.id();
 		var ret=$('<span></span>');
 		ret.append('<h2>Dataset: '+dataset_id+'</h2>');
@@ -112,7 +168,7 @@ function SFMainWindow(O) {
 		return ret;
 	}
 
-	function create_algorithm_element(ALG) {
+	function create_algorithm_result_element(ALG) {
 		var algorithm_name=ALG.name();
 		var ret=$('<span></span>');
 		ret.append('<h2>Algorithm: '+algorithm_name+'</h2>');
@@ -143,7 +199,6 @@ function SFMainWindow(O) {
 		ret.find('#c3').css({"min-width":'150px'});
 		
 		var obj=result.resultObject();
-		console.log(obj);
 		var prefix=dataset_id+'_'+algorithm_name;
 
 		var c3_table=$('<table class=table2></table>');
@@ -205,6 +260,16 @@ function SFMainWindow(O) {
 				return;
 			}
 			callback(null,tmp.object);
+		});
+	}
+
+	function get_text_from_url(url,callback) {
+		jsu_http_get_text(url,{},function(tmp) {
+			if (!tmp.success) {
+				callback(tmp.error);
+				return;
+			}
+			callback(null,tmp.text);
 		});
 	}
 
@@ -389,4 +454,121 @@ function create_bar_chart(xdata,ydata,opts,callback) {
 
 		callback(elmt);
 	});
+}
+
+function GeomWidget(O) {
+	O=O||this;
+	JSQCanvasWidget(O);
+	O.div().addClass('GeomWidget');
+	O.setGeometry(0,0,200,40);
+	O.div().css({position:'relative'});
+
+	this.setGeomText=function(txt) {setGeomText(txt);};
+
+	var m_geom=[];
+	var m_xmin=0, m_xmax=1;
+	var m_ymin=0, m_ymax=1;
+	var m_mindist=1; //dist between nearby electrodes
+	var m_transpose=false;
+
+	O.onPaint(paint);
+	function paint(painter) {
+		var W=O.width();
+		var H=O.height();
+		painter.fillRect(0,0,W,H,'rgb(240,240,240)');
+			
+		var W1=W,H1=H;	
+		if (m_transpose) {
+			W1=H;
+			H1=W;
+		}
+
+		var x1=m_xmin-m_mindist,x2=m_xmax+m_mindist;
+		var y1=m_ymin-m_mindist,y2=m_ymax+m_mindist;
+		var w0=x2-x1, h0=y2-y1;
+		var offset,scale;
+		if (w0*H1>h0*W1) {
+			scale=W1/w0;
+			offset=[0-x1*scale,(H1-h0*scale)/2-y1*scale];
+		}
+		else {
+			scale=H1/h0;
+			offset=[(W1-w0*scale)/2-x1*scale,0-y1*scale];	
+		}
+		for (var i in m_geom) {
+			var pt0=m_geom[i];
+			var x=pt0[0]*scale+offset[0];
+			var y=pt0[1]*scale+offset[1];
+			var rad=m_mindist*scale/3;
+			var x1=x,y1=y;
+			if (m_transpose) {
+				x1=y;
+				y1=x;
+			}
+			painter.fillEllipse([x1-rad,y1-rad,rad*2,rad*2],'blue');
+		}
+
+    }
+
+    function setGeomText(txt) {
+    	m_geom=[];
+    	var list=txt.split('\n');
+    	for (var i in list) {
+    		if (list[i].trim()) {
+	    		var vals=list[i].trim().split(',');
+	    		for (var j in vals) {
+	    			vals[j]=Number(vals[j]);
+	    		}
+	    		while (vals.length<2) vals.push(0);
+	    		m_geom.push(vals);
+	    	}
+    	}
+
+    	var pt0=m_geom[0]||[0,0];
+    	var xmin=pt0[0],xmax=pt0[0];
+    	var ymin=pt0[1],ymax=pt0[1];
+    	for (var i in m_geom) {
+    		var pt=m_geom[i];
+    		xmin=Math.min(xmin,pt[0]);
+    		xmax=Math.max(xmax,pt[0]);
+    		ymin=Math.min(ymin,pt[1]);
+    		ymax=Math.max(ymax,pt[1]);
+    	}
+    	if (xmax==xmin) xmax++;
+    	if (ymax==ymin) ymax++;
+
+    	m_xmin=xmin; m_xmax=xmax;
+    	m_ymin=ymin; m_ymax=ymax;
+
+    	m_transpose=(m_ymax-m_ymin>m_xmax-m_xmin);
+
+    	var mindists=[];
+    	for (var i in m_geom) {
+    		var pt0=m_geom[i];
+    		var mindist=-1;
+    		for (var j in m_geom) {
+    			var pt1=m_geom[j];
+    			var dx=pt1[0]-pt0[0];
+    			var dy=pt1[1]-pt0[1];
+    			var dist=Math.sqrt(dx*dx+dy*dy);
+    			if (dist>0) {
+    				if ((dist<mindist)||(mindist<0))
+    					mindist=dist;
+    			}
+    		}
+    		if (mindist>0) mindists.push(mindist);
+    	}
+    	var avg_mindist=compute_average(mindists);
+    	if (avg_mindist<=0) avg_mindist=1;
+    	m_mindist=avg_mindist;
+
+    	O.update();
+    }
+
+    function compute_average(list) {
+    	if (list.length==0) return 0;
+    	var sum=0;
+    	for (var i in list) sum+=list[i];
+    	return sum/list.length;
+    }
 }

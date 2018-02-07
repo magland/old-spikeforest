@@ -55,9 +55,12 @@ function SFManager(O) {
 }
 
 function SFDataset() {
+  var that=this;
   this.setObject=function(obj) {m_object=JSQ.clone(obj);};
   this.object=function() {return JSQ.clone(m_object);};
   this.id=function() {return m_object.id||'';};
+  this.files=function() {return JSQ.clone(m_object.files||{});};
+  this.file=function(name) {return that.files()[name]||null;};
 
   var m_object={};
 }
