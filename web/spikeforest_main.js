@@ -78,7 +78,11 @@ function load_config(config_id,callback) {
         callback('Missing query parameter: config_id');
         return;
     }
-    jsu_http_get_json('api/getConfig?id='+config_id,{},function(tmp) {
+    var config_url='api/getConfig';
+    if (window.location.hostname=='localhost') {
+        config_url='https://spikeforest.herokuapp.com/'+config_url;
+    }
+    jsu_http_get_json(config_url+'?id='+config_id,{},function(tmp) {
         if (!tmp.success) {
             callback(tmp.error);
             return;

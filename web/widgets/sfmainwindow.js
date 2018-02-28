@@ -43,7 +43,7 @@ function SFMainWindow(O) {
 		dataset_content.empty();
 		var dataset_table=$('<table class=table1 />');
 		dataset_content.append(dataset_table);
-		dataset_table.append('<tr><th>Dataset</th><th>Geometry</th><th>Study</th><th>Files</th></tr>');
+		dataset_table.append('<tr><th>Dataset</th><th>Geometry</th><th>Study</th><th>Files</th><th>Views</th></tr>');
 		for (var i=0; i<m_sf_manager.datasetCount(); i++) {
 			var ds=m_sf_manager.dataset(i);
 			var tr=create_dataset_row(ds);
@@ -108,6 +108,8 @@ function SFMainWindow(O) {
 		ret.append(study_td);
 		var files_td=$('<td></td>');
 		ret.append(files_td);
+		var views_td=$('<td></td>');
+		ret.append(views_td);
 
 		var geom=DS.file('geom.csv');
 		if (geom) {
@@ -147,6 +149,7 @@ function SFMainWindow(O) {
 		tr.append('<th>Num. units</th>');
 		tr.append('<th>Accuracy</th>');
 		tr.append('<th>Files</th>');
+		tr.append('<th>Views</th>');
 		return tr;
 	}
 
@@ -194,13 +197,33 @@ function SFMainWindow(O) {
 		ret.append('<td class=td2 id=c1></td>');
 		ret.append('<td class=td2 id=c2></td>');
 		ret.append('<td class=td3 id=c3></td>');
+		ret.append('<td class=td3 id=c4></td>');
 		ret.find('#c1').css({"min-width":'60px'});
 		ret.find('#c2').css({"min-width":'200px'});
 		ret.find('#c3').css({"min-width":'150px'});
+		ret.find('#c4').css({"min-width":'150px'});
 		
 		var obj=result.resultObject();
 		var prefix=dataset_id+'_'+algorithm_name;
 
+		opts={
+			width:200,
+			height:200
+		};
+		ret.find('#c2').html('loading');
+		get_json_from_url(obj.validation_data['validation_stats.json'].url,function(err,validation_stats) {
+			if (err) {
+				ret.find('#c2').html('Error loading: '+err);
+				return;
+			}
+			ret.find('#c2').html('');
+			var accuracies=validation_stats.accuracies;
+			create_hist_elmt(accuracies,opts,function(elmt) {
+				ret.find('#c2').append(elmt);
+			});
+		});
+
+		////////////////////////////////////////////////////
 		var c3_table=$('<table class=table2></table>');
 		ret.find('#c3').append(c3_table);
 		var firings=obj['firings.mda']||{};
@@ -233,24 +256,46 @@ function SFMainWindow(O) {
 			}
 		}
 
-		opts={
-			width:200,
-			height:200
-		};
-		ret.find('#c2').html('loading');
-		get_json_from_url(obj.validation_data['validation_stats.json'].url,function(err,validation_stats) {
-			if (err) {
-				ret.find('#c2').html('Error loading: '+err);
-				return;
+		////////////////////////////////////////////////////
+		var c4_table=$('<table class=table2></table>');
+		ret.find('#c4').append(c4_table);
+		if (obj.summary_data) {
+			if (obj.summary_data['templates.mda']) {
+				var elmt=create_templates_view_element(obj.summary_data['templates.mda']);
+				var tr=$('<tr><td></td></tr>'); c4_table.append(tr);
+				tr.find('td').append(elmt);
 			}
-			ret.find('#c2').html('');
-			var accuracies=validation_stats.accuracies;
-			create_hist_elmt(accuracies,opts,function(elmt) {
-				ret.find('#c2').append(elmt);
-			});
-		})
+		}
 
 		return ret;
+	}
+
+	function create_templates_view_element(templates) {
+		console.log(templates);
+		var elmt=$('<span><a href=#>View templates</a>&nbsp;&nbsp;</span>')
+		elmt.click(function() {
+			var manager=new MLSManager();
+			var DSC=new DocStorClient();
+			DSC.setDocStorUrl('https://docstor1.herokuapp.com');
+			DSC.login({},function() {
+				manager.setDocStorClient(DSC);
+				popup_widget(manager,{
+	    			"type": "widget",
+	    			"show": {
+	        			"study": {
+	            			"owner": "jmagland@flatironinstitute.org",
+	            			"title": "mountainsortvis.mls"
+	        			},
+	        			"script": "standard_views",
+	        			"method": "show_templates"
+	    			},
+	    			"data": {
+	        			"url": templates.url
+	        		}
+	        	});
+			});
+		});
+		return elmt;
 	}
 
 	function get_json_from_url(url,callback) {

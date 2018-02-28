@@ -65,6 +65,18 @@ opts.SCRIPTS.push(
 	'sfmanager.js'
 );
 
+//////////////////////////////////////////////////////////
+opts.SOURCEPATH.push('mlstudy/web');
+opts.SCRIPTS.push('mlutils.js');
+
+opts.SOURCEPATH.push('mlstudy/web/widgets');
+opts.SCRIPTS.push('altmlsbatchscriptresultswidget.js');
+
+opts.SOURCEPATH.push('mlstudy/web/managers');
+opts.SCRIPTS.push('mlsmanager.js','batchjob.js');
+
+opts.SOURCEPATH.push('mlstudy/web/clients');
+opts.SCRIPTS.push('docstorclient.js','kbucketclient.js','lariclient.js');
 
 //////////////////////////////////////////////////////////////////////
 require(__dirname+'/jsq/jsqmake/jsqmake.js').jsqmake(opts);

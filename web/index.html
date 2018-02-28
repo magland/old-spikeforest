@@ -5,6 +5,52 @@
 
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<!-- jquery -->
+<script
+  src="https://code.jquery.com/jquery-1.12.3.min.js"
+  integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ="
+  crossorigin="anonymous"></script>
+
+<!-- jquery-ui -->
+<script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/black-tie/jquery-ui.css">
+
+<!-- bootstrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<!-- jquery dropdown -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dropdown/2.0.3/jquery.dropdown.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-dropdown/2.0.3/jquery.dropdown.css">
+
+<!-- Font awesome -->
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Github octicons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css" rel="stylesheet">
+
+
+<!---
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/black-tie/jquery-ui.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dropdown/2.0.3/jquery.dropdown.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-dropdown/2.0.3/jquery.dropdown.css">
+-->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+
 <script src="jsq/src/jsqcore/jquery.min.js"></script>
 <script src="jsq/src/jsqcore/jsq.js"></script>
 <script src="jsq/src/jsqcore/jsqobject.js"></script>
@@ -23,17 +69,53 @@
 <script src="./mda.js"></script>
 <script src="widgets/sfmainwindow.js"></script>
 <script src="managers/sfmanager.js"></script>
+<script src="mlstudy/web/mlutils.js"></script>
+<script src="mlstudy/web/widgets/altmlsbatchscriptresultswidget.js"></script>
+<script src="mlstudy/web/managers/mlsmanager.js"></script>
+<script src="mlstudy/web/managers/batchjob.js"></script>
+<script src="mlstudy/web/clients/docstorclient.js"></script>
+<script src="mlstudy/web/clients/kbucketclient.js"></script>
+<script src="mlstudy/web/clients/lariclient.js"></script>
 <link rel="stylesheet" type="text/css" href="jsq/src/jsqcore/jsq.css">
 <link rel="stylesheet" type="text/css" href="jsq/src/jsqcore/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="widgets/sfmainwindow.css">
+<script>
+var _jsq_html_snippet_urls=[];
+</script>
 
 <script>
+
+function _jsq_load_html_snippets(callback) {
+	var num_loaded=0;
+	for (var i=0; i<_jsq_html_snippet_urls.length; i++) {
+		do_load_html_snippet(_jsq_html_snippet_urls[i]);
+	}
+	check_done();
+	function do_load_html_snippet(url) {
+		var holder=$('<span></span>');
+		$('#jsq-templates').append(holder);
+		holder.load(url,function() {
+			num_loaded++;
+			check_done();
+		});
+	}
+	function check_done() {
+		if (num_loaded>=_jsq_html_snippet_urls.length) {
+			if (callback) callback();
+			callback=null;
+		}
+	}
+
+}
+
 $(document).ready(function() {
-	$('body').keydown(function(e) {
-		JSQ._handle_key_press(e);
+	_jsq_load_html_snippets(function() {
+		$('body').keydown(function(e) {
+			JSQ._handle_key_press(e);
+		});
+		var query=parse_url_params();
+		jsqmain(query);
 	});
-	var query=parse_url_params();
-	jsqmain(query);
 });
 
 function parse_url_params() {
@@ -52,6 +134,10 @@ function parse_url_params() {
 </head>
 
 <body>
+
+<span id=jsq-templates style="visibility:hidden;display:none">
+</span>
+
 </body>
 
 </html>
