@@ -16,7 +16,7 @@
  */
 
 //////////////////////////////////////////////////////////////////////
-var opts={PROJECTPATH:__dirname, SOURCEPATH:['.'], SCRIPTS:[], STYLESHEETS:[]};
+var opts={PROJECTPATH:__dirname, SOURCEPATH:['.'], SCRIPTS:[], STYLESHEETS:[], HTML_SNIPPETS:[]};
 
 //////////////////////////////////////////////////////////////////////
 //require('../../jsqcore/jsqcore.pri').load(opts);
@@ -71,9 +71,13 @@ opts.SCRIPTS.push('mlutils.js');
 
 opts.SOURCEPATH.push('mlstudy/web/widgets');
 opts.SCRIPTS.push('altmlsbatchscriptresultswidget.js');
+opts.HTML_SNIPPETS.push('altmlswebmodulewidget.html');
 
 opts.SOURCEPATH.push('mlstudy/web/managers');
 opts.SCRIPTS.push('mlsmanager.js','batchjob.js');
+
+opts.SOURCEPATH.push('mlstudy/web/mlpipeline');
+opts.SCRIPTS.push('mlplogwidget.js');
 
 opts.SOURCEPATH.push('mlstudy/web/clients');
 opts.SCRIPTS.push('docstorclient.js','kbucketclient.js','lariclient.js');

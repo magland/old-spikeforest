@@ -21,7 +21,9 @@
 <!-- bootstrap -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<!-- Note that I am using $.getScript below for bootstrap, because for some reason things were not working unless I made sure jquery had been fully loaded before loading this script
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+-->
 
 <!-- jquery dropdown -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-dropdown/2.0.3/jquery.dropdown.js"></script>
@@ -73,6 +75,7 @@
 <script src="mlstudy/web/widgets/altmlsbatchscriptresultswidget.js"></script>
 <script src="mlstudy/web/managers/mlsmanager.js"></script>
 <script src="mlstudy/web/managers/batchjob.js"></script>
+<script src="mlstudy/web/mlpipeline/mlplogwidget.js"></script>
 <script src="mlstudy/web/clients/docstorclient.js"></script>
 <script src="mlstudy/web/clients/kbucketclient.js"></script>
 <script src="mlstudy/web/clients/lariclient.js"></script>
@@ -81,6 +84,7 @@
 <link rel="stylesheet" type="text/css" href="widgets/sfmainwindow.css">
 <script>
 var _jsq_html_snippet_urls=[];
+_jsq_html_snippet_urls.push('mlstudy/web/widgets/altmlswebmodulewidget.html');
 </script>
 
 <script>
@@ -109,12 +113,14 @@ function _jsq_load_html_snippets(callback) {
 }
 
 $(document).ready(function() {
-	_jsq_load_html_snippets(function() {
-		$('body').keydown(function(e) {
-			JSQ._handle_key_press(e);
+	$.getScript('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js',function() {
+		_jsq_load_html_snippets(function() {
+			$('body').keydown(function(e) {
+				JSQ._handle_key_press(e);
+			});
+			var query=parse_url_params();
+			jsqmain(query);
 		});
-		var query=parse_url_params();
-		jsqmain(query);
 	});
 });
 

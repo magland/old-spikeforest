@@ -265,13 +265,17 @@ function SFMainWindow(O) {
 				var tr=$('<tr><td></td></tr>'); c4_table.append(tr);
 				tr.find('td').append(elmt);
 			}
+			if (obj.summary_data['raw_1sec.mda']) {
+				var elmt=create_timeseries_view_element(obj.summary_data['raw_1sec.mda'],'View raw_1sec');
+				var tr=$('<tr><td></td></tr>'); c4_table.append(tr);
+				tr.find('td').append(elmt);
+			}
 		}
 
 		return ret;
 	}
 
 	function create_templates_view_element(templates) {
-		console.log(templates);
 		var elmt=$('<span><a href=#>View templates</a>&nbsp;&nbsp;</span>')
 		elmt.click(function() {
 			var manager=new MLSManager();
@@ -291,6 +295,33 @@ function SFMainWindow(O) {
 	    			},
 	    			"data": {
 	        			"url": templates.url
+	        		}
+	        	});
+			});
+		});
+		return elmt;
+	}
+
+	function create_timeseries_view_element(timeseries,label) {
+		var elmt=$(`<span><a href=#>${label}</a>&nbsp;&nbsp;</span>`)
+		elmt.click(function() {
+			var manager=new MLSManager();
+			var DSC=new DocStorClient();
+			DSC.setDocStorUrl('https://docstor1.herokuapp.com');
+			DSC.login({},function() {
+				manager.setDocStorClient(DSC);
+				popup_widget(manager,{
+	    			"type": "widget",
+	    			"show": {
+	        			"study": {
+	            			"owner": "jmagland@flatironinstitute.org",
+	            			"title": "mountainsortvis.mls"
+	        			},
+	        			"script": "standard_views",
+	        			"method": "show_timeseries"
+	    			},
+	    			"data": {
+	        			"url": timeseries.url
 	        		}
 	        	});
 			});
