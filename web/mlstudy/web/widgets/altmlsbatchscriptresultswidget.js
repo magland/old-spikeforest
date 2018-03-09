@@ -597,7 +597,6 @@ function popup_widget(mls_manager,result_object) {
 	});
 
 	function get_study_object(callback) {
-		console.log(result_object);
 		if (result_object.show.study) {
 			var docstor_client=mls_manager.docStorClient();
 			var owner=result_object.show.study.owner;

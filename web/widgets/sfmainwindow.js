@@ -23,7 +23,7 @@ function SFMainWindow(O) {
 	var display_mode=$('<span>Display mode: </span>');
 	O.div().append(display_mode);
 	display_mode.append('<span><input id=dm1 name=display_mode type=radio></input> By dataset &nbsp;&nbsp;&nbsp;</span>')
-	display_mode.append('<span><input id=dm2 name=display_mode type=radio></input> By algorithm 2 &nbsp;&nbsp;&nbsp;</span>')
+	display_mode.append('<span><input id=dm2 name=display_mode type=radio></input> By algorithm &nbsp;&nbsp;&nbsp;</span>')
 	display_mode.append('<span><input id=dm3 name=display_mode type=radio></input> Matrix &nbsp;&nbsp;&nbsp;</span>')
 	display_mode.find('#dm1').attr('checked','checked');
 	display_mode.find('input').change(function() {
@@ -87,8 +87,9 @@ function SFMainWindow(O) {
 				tr.append('<td>'+ALG.name()+'</td>');
 				for (var i=0; i<m_sf_manager.datasetCount(); i++) {
 					var DS=m_sf_manager.dataset(i);
-					var pct=Math.floor(Math.random()*100);
-					tr.append('<td><a href=#>'+pct+'%</a></td>');
+					//var pct=Math.floor(Math.random()*100);
+					//tr.append('<td><a href=#>'+pct+'%</a></td>');
+					tr.append('<td><a href=#>Not yet implemented</a></td>');
 				}
 			}
 			var result_table=$('<table class=table1></table>');
