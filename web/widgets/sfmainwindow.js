@@ -89,7 +89,10 @@ function SFMainWindow(O) {
 					var DS=m_sf_manager.dataset(i);
 					//var pct=Math.floor(Math.random()*100);
 					//tr.append('<td><a href=#>'+pct+'%</a></td>');
-					tr.append('<td><a href=#>Not yet implemented</a></td>');
+					var td=$('<td></td>');
+					var X=create_validation_hist(ALG,DS);
+					td.append(X);
+					tr.append(td);
 				}
 			}
 			var result_table=$('<table class=table1></table>');
@@ -97,6 +100,32 @@ function SFMainWindow(O) {
 			result_content.append('<hr />');
 			result_content.append(result_table);
 		}
+	}
+
+	function create_validation_hist(ALG,DS) {
+		var dataset_id=DS.id();
+		var algorithm_name=ALG.name();
+		var result=m_sf_manager.findResult(dataset_id,algorithm_name);
+		var ret=$(`<div data-dataset-id="${dataset_id}" data-algorithm-name="${algorithm_name}"></div>`);
+		if (result) {
+			var obj=result.resultObject();
+			if ((obj.validation_data)&&(obj.validation_data['validation_stats.json'])) {
+				ret.html('Loading ...');
+				get_json_from_url(obj.validation_data['validation_stats.json'].url,function(err,validation_stats) {
+					if (err) {
+						ret.html('Error loading: '+err);
+						return;
+					}
+					ret.html('');
+					var accuracies=validation_stats.accuracies;
+					create_hist_elmt(accuracies,opts,function(elmt) {
+						ret.append(elmt);
+					});
+				});
+			}
+		}
+		return ret;
+
 	}
 
 	function create_dataset_row(DS) {
