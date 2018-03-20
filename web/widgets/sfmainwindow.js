@@ -430,14 +430,20 @@ function create_hist_elmt(values,opts,callback) {
 		}
 		tooltips[ii]=`Bin: [${lefts[ii]},${rights[ii]}]  Count: ${counts[ii]}`;
 	}
+	
+	centers=centers.slice(2);
+	lefts=lefts.slice(2);
+	rights=rights.slice(2);
+	counts=counts.slice(2);
+	tooltips=tooltips.slice(2);
 	var opts={
 		bar_width:9.5,
 		width:opts.width,
 		height:opts.height,
 		tooltips:tooltips,
-		xmin:0,
+		xmin:20,
 		xmax:100,
-		xticks:[0,20,40,60,80,100],
+		xticks:[20,40,60,80,100],
 		xlabel:'Accuracy (%)',
 		ylabel:'Num. units'
 	};
